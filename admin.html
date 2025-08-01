@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel - Add Product</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-OF47N9JPfWduII0gxR8x2ym2fRde9lU",
+      authDomain: "aurorix-99ca5.firebaseapp.com",
+      projectId: "aurorix-99ca5",
+      storageBucket: "aurorix-99ca5.appspot.com",
+      messagingSenderId: "809525055336",
+      appId: "1:809525055336:web:20acff546c0b77714dd0dd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.addProduct = async () => {
+      const name = document.getElementById("name").value;
+      const price = document.getElementById("price").value;
+      const description = document.getElementById("description").value;
+      const image = document.getElementById("image").value;
+
+      if (!name || !price || !description || !image) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      try {
+        const docRef = await addDoc(collection(db, "products"), {
+          name,
+          price,
+          description,
+          image
+        });
+        alert("Product added with ID: " + docRef.id);
+      } catch (e) {
+        alert("Error adding product: " + e);
+      }
+    };
+  </script>
+</head>
+<body>
+  <h2>Add Product</h2>
+  <input type="text" id="name" placeholder="Product Name"><br><br>
+  <input type="text" id="price" placeholder="Price"><br><br>
+  <input type="text" id="description" placeholder="Description"><br><br>
+  <input type="text" id="image" placeholder="Image URL"><br><br>
+  <button onclick="addProduct()">Add Product</button>
+  <button><a href="delete-products.html">delete page</a> </button>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Delete Products</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .product {
+      background: white;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .product img {
+      height: 60px;
+      border-radius: 6px;
+      margin-right: 15px;
+    }
+    .details {
+      flex: 1;
+    }
+    .delete-btn {
+      background-color: crimson;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Admin - Delete Products</h1>
+  <div id="productsList"></div>
+
+  <script type="module">
+    // Firebase imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // Config (your project)
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-OF47N9JPfWduII0gxR8x2ym2fRde9lU",
+      authDomain: "aurorix-99ca5.firebaseapp.com",
+      projectId: "aurorix-99ca5",
+      storageBucket: "aurorix-99ca5.appspot.com",
+      messagingSenderId: "809525055336",
+      appId: "1:809525055336:web:20acff546c0b77714dd0dd"
+    };
+
+    // Init
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const productsList = document.getElementById("productsList");
+
+    async function loadProducts() {
+      const querySnapshot = await getDocs(collection(db, "products"));
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const productDiv = document.createElement("div");
+        productDiv.className = "product";
+
+        productDiv.innerHTML = `
+          <img src="${data.image}" alt="${data.name}" />
+          <div class="details">
+            <h3>${data.name}</h3>
+            <p>Price: ₹${data.price}</p>
+          </div>
+          <button class="delete-btn" onclick="deleteProduct('${docSnap.id}')">Delete</button>
+        `;
+
+        productsList.appendChild(productDiv);
+      });
+    }
+
+    window.deleteProduct = async (id) => {
+      if (confirm("Are you sure you want to delete this product?")) {
+        await deleteDoc(doc(db, "products", id));
+        alert("Product deleted!");
+        location.reload(); // refresh to update list
+      }
+    };
+
+    loadProducts();
+  </script>
+</body>
+</html>

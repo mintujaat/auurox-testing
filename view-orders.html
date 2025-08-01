@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>View Orders - Aurorix Admin</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .order-card {
+      background: #fff;
+      padding: 16px;
+      margin: 10px auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+    }
+    .order-card p {
+      margin: 4px 0;
+    }
+    #ordersContainer {
+      margin-top: 30px;
+    }
+    .no-orders {
+      text-align: center;
+      color: #777;
+    }
+    <style>
+  .order-box {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 8px;
+  }
+
+  .order-box.completed {
+    background-color: #d4edda;
+    border-left: 5px solid green;
+  }
+
+  .order-box button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+</style>
+  </style>
+  <nav>
+    <button><a href="delete-products.html" >delete items</a></button>
+    <button><a href="admin.html" >add items</a></button>
+  </nav>
+</head>
+<body>
+  <h1>All Orders</h1>
+  <div id="ordersContainer">
+    <p class="no-orders">Loading orders...</p>
+  </div>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-OF47N9JPfWduII0gxR8x2ym2fRde9lU",
+      authDomain: "aurorix-99ca5.firebaseapp.com",
+      projectId: "aurorix-99ca5",
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const ordersContainer = document.getElementById('ordersContainer');
+
+    db.collection("orders").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+      ordersContainer.innerHTML = "";
+
+      if (snapshot.empty) {
+        ordersContainer.innerHTML = '<p class="no-orders">No orders found.</p>';
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const order = doc.data();
+
+        const orderCard = document.createElement("div");
+        orderCard.className = "order-card";
+        orderCard.innerHTML = `
+          
+          <p><strong>Phone:</strong> ${order.phone || "N/A"}</p>
+          <p><strong>Payment:</strong> ${order.paymentMethod || "N/A"}</p>
+          <p><strong>Total:</strong> ₹${order.total || "0"}</p>
+          <p><strong>Status:</strong> ${order.status || "pending"}</p>
+          <p><strong>Address:</strong> ${order.address || "N/A"}</p>
+          <p><strong>Payment Proof:</strong> <a href="${order.paymentProof}" target="_blank">View</a></p>
+         
+  
+</div>
+
+<p id="statusResult"></p>
+
+  
+        `;
+
+        ordersContainer.appendChild(orderCard);
+      });
+    }, (error) => {
+      console.error("Error fetching orders:", error);
+      ordersContainer.innerHTML = '<p class="no-orders">Error loading orders.</p>';
+    });
+    async function deleteOrder(orderId) {
+  if (confirm("Are you sure you want to delete this order?")) {
+    try {
+      await deleteDoc(doc(db, "orders", orderId));
+      alert("Order deleted successfully");
+      location.reload(); // or re-fetch the orders without reload
+    } catch (error) {
+      console.error("Error deleting order:", error);
+      alert("Failed to delete order.");
+    }
+  }
+}
+function markAsCompleted(button) {
+  const orderBox = button.closest(".order-box");
+  orderBox.classList.add("completed");
+  button.disabled = true;
+  button.textContent = "✓ Completed";
+
+}
+
+  </script>
+</body>
+</html>

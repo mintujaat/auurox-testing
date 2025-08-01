@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout - Aurorix</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+    }
+    .checkout-box {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    h2 { text-align: center; }
+    label { display: block; margin-top: 15px; }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+    }
+    .upi-info {
+      margin-top: 10px;
+      font-weight: bold;
+      color: green;
+    }
+    #placeOrderBtn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px;
+      margin-top: 20px;
+      cursor: pointer;
+      width: 100%;
+      border-radius: 8px;
+    }
+    #priceTag {
+      font-size: 18px;
+      margin-top: 10px;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+<div class="checkout-box">
+  <h2>Aurrorx Checkout page</h2>
+  <h2><marquee>cod se order lene k liye be 45 rupyee payment krni pde ge </marquee></h2>
+  <button><a href="qr.html">qr code</a></button>
+
+  <label>Phone Number:</label>
+  <input type="tel" id="phone" placeholder="Enter your phone number">
+
+  <label>Shipping Address:</label>
+  <input type="text" id="address" placeholder="Enter full address">
+
+  <label>Select Payment Method:</label>
+  <select id="paymentMethod">
+    <option value="COD">Cash on Delivery (COD)</option>
+    <option value="UPI">UPI</option>
+  </select>
+
+  <div class="upi-info" id="upiInfo" style="display: none;">
+    Pay to this UPI ID: <b>mintujaat@fam</b><br>
+    Then paste your payment proof image URL below:
+    <input type="text" id="paymentProof" placeholder="Paste image URL (Google Drive, Imgur, etc)" />
+  </div>
+
+  <div id="priceTag">Total Price: ₹<span id="totalPrice">0</span></div>
+
+  <button id="placeOrderBtn">Place Order</button>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC-OF47N9JPfWduII0gxR8x2ym2fRde9lU",
+    authDomain: "aurorix-99ca5.firebaseapp.com",
+    databaseURL: "https://aurorix-99ca5-default-rtdb.firebaseio.com",
+    projectId: "aurorix-99ca5",
+    storageBucket: "aurorix-99ca5.appspot.com",
+    messagingSenderId: "809525055336",
+    appId: "1:809525055336:web:20acff546c0b77714dd0dd",
+    measurementId: "G-KERDGYKMY6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const totalPriceElement = document.getElementById("totalPrice");
+
+  // Get cart total
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  let total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+  totalPriceElement.textContent = total;
+
+  // Show UPI section when selected
+  const paymentMethod = document.getElementById("paymentMethod");
+  const upiInfo = document.getElementById("upiInfo");
+  paymentMethod.addEventListener("change", () => {
+    upiInfo.style.display = paymentMethod.value === "UPI" ? "block" : "none";
+  });
+
+  document.getElementById("placeOrderBtn").addEventListener("click", async () => {
+    const phone = document.getElementById("phone").value.trim();
+    const address = document.getElementById("address").value.trim();
+    const method = paymentMethod.value;
+    const proofURL = document.getElementById("paymentProof").value.trim();
+
+    if (!phone || !address) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    if (method === "UPI" && !proofURL) {
+      alert("Please enter payment proof image URL");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "orders"), {
+        phone,
+        address,
+        paymentMethod: method,
+        paymentProof: method === "UPI" ? proofURL : "",
+        total: total,
+        status: "Pending",
+        timestamp: new Date()
+      });
+
+      localStorage.removeItem("cart");
+      window.location.href = "thankyou.html";
+    } catch (error) {
+      alert("Error placing order: " + error.message);
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aurorix Products</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      margin: 0;
+      padding: 20px;
+    }
+    .product {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      background: #fff;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .product img {
+      max-width: 120px;
+      max-height: 120px;
+      border-radius: 8px;
+      margin-right: 20px;
+    }
+    .details {
+      flex: 1;
+    }
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .buttons button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .preview-btn {
+      background: #007bff;
+      color: white;
+    }
+    .cart-btn {
+      background: #28a745;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Aurorix - All Products</h1>
+  <div id="product-list"></div>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-OF47N9JPfWduII0gxR8x2ym2fRde9lU",
+      authDomain: "aurorix-99ca5.firebaseapp.com",
+      databaseURL: "https://aurorix-99ca5-default-rtdb.firebaseio.com",
+      projectId: "aurorix-99ca5",
+      storageBucket: "aurorix-99ca5.appspot.com",
+      messagingSenderId: "809525055336",
+      appId: "1:809525055336:web:20acff546c0b77714dd0dd",
+      measurementId: "G-KERDGYKMY6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const productList = document.getElementById('product-list');
+
+    async function loadProducts() {
+      const querySnapshot = await getDocs(collection(db, "products"));
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const productDiv = document.createElement('div');
+        productDiv.className = "product";
+        productDiv.innerHTML = `
+          <img src="${data.image}" alt="${data.name}" onerror="this.src='https://via.placeholder.com/120'"/>
+          <div class="details">
+            <h3>${data.name}</h3>
+            <p>₹${data.price}</p>
+          </div>
+          <div class="buttons">
+            <button class="preview-btn" onclick="window.location.href='product.html?id=${docSnap.id}'">Preview</button>
+            <button class="cart-btn" onclick='addToCart("${docSnap.id}", "${data.name}", ${data.price}, "${data.image}")'>Add to Cart</button>
+          </div>
+        `;
+        productList.appendChild(productDiv);
+      });
+    }
+
+    loadProducts();
+
+    window.addToCart = function (id, name, price, image) {
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      cart.push({ id, name, price, image });
+      localStorage.setItem("cart", JSON.stringify(cart));
+      alert("Added to Cart!");
+    };
+  </script>
+</body>
+</html>
