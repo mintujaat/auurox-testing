@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Aurorix Products</title>
   <style>
+    
     body {
       font-family: Arial, sans-serif;
       background: #f8f8f8;
@@ -52,8 +53,18 @@
   </style>
 </head>
 <body>
-  <h1>Aurorix - All Products</h1>
+  <h1>Aurorix - All Products</h1><header>
+    <div class="logo">Aurorix</div>
+    <nav>
+      <a href="index.html" class="active">🏠Home</a>
+      <a href="product.html">🚀Products</a>
+      <a href="cart.html">🛒Cart</a>
+      <a href="profile.html">🚶🏻‍♂Profile</a>
+       <a href="DEMOYT.HTML">🎥HOW TO USE</a>
+    </nav>
+  </header>
   <div id="product-list"></div>
+  
 
   <!-- Firebase SDKs -->
   <script type="module">
@@ -89,7 +100,7 @@
             <p>₹${data.price}</p>
           </div>
           <div class="buttons">
-            <button class="preview-btn" onclick="window.location.href='product.html?id=${docSnap.id}'">Preview</button>
+            
             <button class="cart-btn" onclick='addToCart("${docSnap.id}", "${data.name}", ${data.price}, "${data.image}")'>Add to Cart</button>
           </div>
         `;
